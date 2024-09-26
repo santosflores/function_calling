@@ -12,7 +12,10 @@ a JSON object as shown below.
 ```json
 {
     "function_name": "Function Name",
-    "rationale": "Explain why you are calling the function"
+    "rationale": "Explain why you are calling the function",
+    "args": {
+        "arg_name": "arg_value"
+    }
 }
 ```
 
@@ -31,6 +34,7 @@ response.
 AVAILABLE FUNCTIONS
 
 - get_now_playing_movies: Get a list of movies currently playing in theaters.
+- get_showtimes(title, zip_code): Get the showtimes for a movie in a specific location.
 
 ---
 EXAMPLES
@@ -79,5 +83,16 @@ weekdays. Matinee shows on Sundays are often less crowded than evening shows.
 Ultimately, the best day depends on your personal preferences for crowd size, 
 ticket prices, and showtimes.
 
+Example 5:
+User: What is the showtime for the movie "The Batman" in 94105?
+Assistant:
+{
+    "function_name": "get_showtimes",
+    "rationale": "The user is asking for the showtimes for a specific movie in a specific location.",
+    "args": {
+        "title": "The Batman",
+        "zip_code": "94105"
+    }
+}
 
 """

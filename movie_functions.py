@@ -19,7 +19,7 @@ def get_now_playing_movies():
     movies = data.get("results", [])
     if not movies:
         return {
-            "status_code": 40,
+            "status_code": 404,
             "items": [],
             "number_of_items": 0,
         }

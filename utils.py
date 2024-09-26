@@ -1,6 +1,9 @@
 import json
 import re
+import logging
 
+# Configure the logger
+logger = logging.getLogger(__name__)
 
 def has_function_call(response: str) -> bool:
     pattern = r'"function_name"\s*:'
@@ -34,3 +37,4 @@ def parse_now_playing_movies(movies):
                 f"**Overview:** {overview}\n\n"
             )
         return response
+
