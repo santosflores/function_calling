@@ -6,8 +6,8 @@ load_dotenv()
 
 client = AsyncOpenAI()
 gen_kwargs = {
-    "model": "gpt-4o", 
-    "temperature": 0.3, 
+    "model": "gpt-4o-mini", 
+    "temperature": 0.1, 
     "max_tokens": 500
 }
 

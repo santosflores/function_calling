@@ -2,7 +2,7 @@ import os
 import requests
 from serpapi import GoogleSearch
 import os
-
+import random
 
 def get_now_playing_movies():
     url = "https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1"
@@ -67,6 +67,8 @@ def get_showtimes(title, location):
 
     return formatted_showtimes
 
+def pick_random_movie(movies):
+    return random.choice(movies)
 
 def buy_ticket(theater, movie, showtime):
     return f"Ticket purchased for {movie} at {theater} for {showtime}."
