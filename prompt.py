@@ -151,6 +151,7 @@ Assistant:
         "showtime": "9:25pm"
     }
 }
+
 ---
 ANTI-PATTERN EXAMPLES
 
