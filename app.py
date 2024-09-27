@@ -6,8 +6,9 @@ from movie_functions import (
     pick_random_movie,
     buy_ticket,
     confirm_ticket_purchase,
+    get_reviews,
 )
-from prompt import SYSTEM_PROMPT
+from prompt import SYSTEM_PROMPT, RAG_PROMPT
 from utils import parse_response, parse_now_playing_movies
 from utils import logger
 
@@ -86,6 +87,27 @@ async def on_message(message: cl.Message):
     await response.send()
     # Get the message history
     message_history = cl.user_session.get("message_history", [])
+    # Verify that the message history is large enough to get context
+    if len(message_history) > 5:
+        context_history = [{"role": "system", "content": RAG_PROMPT}]
+        # context_history.append(message_history[1:])
+        print(context_history)
+        llm_request = {
+            "role": "system",
+            "content": json.dumps(message_history[1:]),
+        }
+        context_json = await get_llm_response_stream(llm_request, context_history)
+        context_json = json.loads(context_json)
+        if context_json.get("fetch_reviews", False):
+            movie_id = context_json.get("id")
+            reviews = get_reviews(movie_id)
+            reviews = f"""# Reviews for: {context_json.get('movie')}\n ## ID: {movie_id}\n ### Reviews\n --- \n {reviews}"""
+            context_message = {
+                "role": "system",
+                "content": f"AUGMENTED CONTEXT \n {reviews}",
+            }
+            message_history.append(context_message)
+
     # Get the response from the LLM
     gpt_response = await get_llm_response_stream(
         {"role": "user", "content": message.content},

@@ -187,3 +187,27 @@ User: Get me showtimes for "Beetlejuice Beetlejuice"
 -- Assistant: Make a call to function get_showtimes because the user is asking for the showtimes for the movie 'Beetlejuice Beetlejuice' in a specific location.
 
 """
+
+RAG_PROMPT = """\
+---
+OBJECTIVE
+
+Based on the conversation, determine if the topic is about a specific movie. 
+Determine if the user is asking a question that would be aided by knowing what 
+critics are saying about the movie. Determine if the reviews for that movie have 
+already been provided in the conversation. If so, do not fetch reviews.
+
+Your only role is to evaluate the conversation, and decide whether to fetch 
+reviews.
+
+Output the current movie, id, a boolean to fetch reviews in JSON format, and 
+add your rationale. Do not output as a code block.
+
+{
+    "movie": "title",
+    "id": 123,
+    "fetch_reviews": true
+    "rationale": "reasoning"
+}
+
+"""

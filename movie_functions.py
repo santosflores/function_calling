@@ -112,7 +112,7 @@ def get_reviews(movie_id):
             f"**Rating:** {rating}\n"
             f"**Content:** {content}\n"
             f"**Created At:** {created_at}\n"
-            f"**URL:** {url}\n"
+            f"**URL:** {url}\n\n"
             "----------------------------------------\n"
         )
 
