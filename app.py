@@ -1,6 +1,12 @@
 from gpt_service import get_llm_response_stream
 from langfuse.decorators import observe
-from movie_functions import get_now_playing_movies, get_showtimes, pick_random_movie
+from movie_functions import (
+    get_now_playing_movies,
+    get_showtimes,
+    pick_random_movie,
+    buy_ticket,
+    confirm_ticket_purchase,
+)
 from prompt import SYSTEM_PROMPT
 from utils import parse_response, parse_now_playing_movies
 from utils import logger
@@ -12,6 +18,7 @@ ERROR_MESSAGE = "I couldn't understand your request. Please try again."
 
 
 def handle_external_function_call(function_name, args=None):
+    message_history = cl.user_session.get("message_history", [])
     if function_name == "get_now_playing_movies":
         movies = get_now_playing_movies()
         if "error" in movies:
@@ -32,6 +39,33 @@ def handle_external_function_call(function_name, args=None):
                 return {"error": "Failed to pick a random movie"}
             else:
                 return {"content": random_movie}
+    elif function_name == "confirm_ticket_purchase":
+        if args["theater"] and args["movie"] and args["showtime"]:
+            ticket_purchase = confirm_ticket_purchase(
+                args["theater"], args["movie"], args["showtime"]
+            )
+            message_history.append({"role": "system", "content": ticket_purchase})
+            if "error" in ticket_purchase:
+                return {"error": "Failed to create a confirmation for ticket purchase"}
+            else:
+                return {
+                    "content": f"""Please confirm the ticket purchase for:
+                    Movie: {args['movie']}
+                    Theater: {args['theater']}
+                    Showtime: {args['showtime']}
+                    Quantity: {args['quantity']}
+                    """
+                }
+    elif function_name == "buy_ticket":
+        if args["theater"] and args["movie"] and args["showtime"]:
+            ticket_purchase = buy_ticket(
+                args["theater"], args["movie"], args["showtime"]
+            )
+            message_history.append({"role": "system", "content": ticket_purchase})
+            if "error" in ticket_purchase:
+                return {"error": "Failed to buy a ticket"}
+            else:
+                return {"content": ticket_purchase}
     else:
         return {"error": "Function not found"}
 
@@ -71,7 +105,7 @@ async def on_message(message: cl.Message):
                 "args": parsed_response.get("args", {}),
             },
         )
-        print(f"Task queue: {task_queue}")
+        logger.info(f"Task queue: {task_queue}")
         for task in task_queue:
             # Generate the request for the task
             content = f"""Make a call to function {task.get("function_name", "N/A")} 
@@ -80,6 +114,7 @@ async def on_message(message: cl.Message):
                 {"role": "system", "content": content},
                 message_history,
             )
+            message_history.append({"role": "system", "content": task_request})
             logger.info(f"Created task request: {task_request}")
             # Format the suggested task by the LLM into a JSON object
             parsed_task_response = parse_response(task_request)
@@ -100,8 +135,10 @@ async def on_message(message: cl.Message):
             )
             # Update the system with the function request and response to the message history
             system_message = {
-                "debug_info":{
-                    "function_request": parsed_task_response,
+                "debug_info": {
+                    "function_name": function_name,
+                    "rationale": rationale,
+                    "args": args,
                     "function_response": function_response,
                 }
             }

@@ -4,6 +4,7 @@ from serpapi import GoogleSearch
 import os
 import random
 
+
 def get_now_playing_movies():
     url = "https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1"
     headers = {"Authorization": f"Bearer {os.getenv('TMDB_API_ACCESS_TOKEN')}"}
@@ -67,11 +68,23 @@ def get_showtimes(title, location):
 
     return formatted_showtimes
 
+
 def pick_random_movie(movies):
     return random.choice(movies)
 
+
 def buy_ticket(theater, movie, showtime):
     return f"Ticket purchased for {movie} at {theater} for {showtime}."
+
+
+def confirm_ticket_purchase(theater, movie, showtime, quantity=1):
+    return {
+        "theater": theater,
+        "movie": movie,
+        "showtime": showtime,
+        "quantity": quantity,
+        "is_confirmed": False
+    }
 
 
 def get_reviews(movie_id):
